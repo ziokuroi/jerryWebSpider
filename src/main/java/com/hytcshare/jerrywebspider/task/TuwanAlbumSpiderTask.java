@@ -15,12 +15,13 @@ import com.hytcshare.jerrywebspider.utils.TaskUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Base64;
+import java.util.UUID;
 
 @Slf4j
 public class TuwanAlbumSpiderTask implements Runnable {
     private String welfareUrl;
     private int tuwanStart;
-    private Integer endLine;
+    private int tuwanEnd;
 
     private SpiderTaskService spiderTaskService;
     private TuwanAlbumImagesService tuwanAlbumImagesService;
@@ -35,8 +36,8 @@ public class TuwanAlbumSpiderTask implements Runnable {
         this.tuwanStart = tuwanStart;
     }
 
-    public void setEndLine(Integer endLine) {
-        this.endLine = endLine;
+    public void setTuwanEnd(int tuwanEnd) {
+        this.tuwanEnd = tuwanEnd;
     }
 
     public void setSpiderTaskService(SpiderTaskService spiderTaskService) {
@@ -57,10 +58,10 @@ public class TuwanAlbumSpiderTask implements Runnable {
         try {
             TaskUtils.startTask(spiderTaskService, tuwanAlbumSpiderTaskName);
             //获取图片地址
-            if (endLine == null || endLine < tuwanStart + 1) {
+            if (tuwanEnd <= 0 || tuwanEnd < tuwanStart + 1) {
                 throw new SpiderException(ExceptionEnum.ENDLINE_ILLEGAL.getCode(), ExceptionEnum.ENDLINE_ILLEGAL.getDes());
             }
-            for (int i = tuwanStart; i <= endLine; i++) {
+            for (int i = tuwanStart; i <= tuwanEnd; i++) {
                 try {
                     Thread.sleep((long) Math.random() * 3000);
                 } catch (InterruptedException e) {
@@ -74,6 +75,9 @@ public class TuwanAlbumSpiderTask implements Runnable {
             //更新任务状态为执行完毕
             TaskUtils.shutdownTask(spiderTaskService, tuwanAlbumSpiderTaskName);
             log.info("tuwan album spider task finish!");
+            //爬取完成自动下载
+            //TuwanAlbumSpiderController tcontroller = (TuwanAlbumSpiderController) SpringUtil.getBean("tuwanAlbumSpiderController");
+            //tcontroller.startDownLoadImageZipPackage(this.tuwanStart, this.tuwanEnd);
         }
     }
 
@@ -87,15 +91,36 @@ public class TuwanAlbumSpiderTask implements Runnable {
                 //后续解析
                 String title = (String) jsonObject.get("title");
                 //防重判断
-                if (tuwanAlbumImagesService.countByTitle(title)>0){
-                    return;
+                if(title.equals("")){
+                    title = UUID.randomUUID().toString();
+                }else {
+                    //防重判断
+                    if (tuwanAlbumImagesService.countByTitle(title)>0){
+                        return;
+                    }
                 }
                 JSONArray thumbs = (JSONArray) jsonObject.get("thumb");
                 String cover = "";
                 if (thumbs == null || thumbs.size() <= 0){
                     return;
                 }
+                //编号
+                int number = 0;
+                int size = thumbs.size();
+                String formatter;
+                if(size >= 1000){
+                    formatter = "%04d";
+                }else if(size >= 100){
+                    formatter = "%03d";
+                }else if(size >= 10){
+                    formatter = "%02d";
+                }else {
+                    formatter = "%01d";
+                }
+                //开始遍历
                 for (Object thumb : thumbs) {
+                    number = number + 1;
+                    String num = String.format(formatter, number);
                     String thumbUrl = (String) thumb;
                     String url = translateUrl(thumbUrl);
                     //写数据库
@@ -107,6 +132,7 @@ public class TuwanAlbumSpiderTask implements Runnable {
                     tuwanAlbumImages.setTitle(title);
                     tuwanAlbumImages.setUrl(url);
                     tuwanAlbumImages.setDownloaded(DownloadedStatusEnum.NOT_DOWNLOADED.getCode());
+                    tuwanAlbumImages.setNum(num);
                     tuwanAlbumImagesService.insertOrUpdate(tuwanAlbumImages);
                 }
 

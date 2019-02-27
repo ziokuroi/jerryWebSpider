@@ -51,7 +51,7 @@ public class TuwanAlbumSpiderController extends BaseController {
                 new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
         TuwanAlbumSpiderTask task = new TuwanAlbumSpiderTask();
         task.setTuwanStart(start);
-        task.setEndLine(end);
+        task.setTuwanEnd(end);
         task.setWelfareUrl(welfareUrl);
         task.setSpiderTaskService(spiderTaskService);
         task.setTuwanAlbumSpiderTaskName(spiderTaskName);

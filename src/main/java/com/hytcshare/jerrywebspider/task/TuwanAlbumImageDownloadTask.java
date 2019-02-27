@@ -64,7 +64,8 @@ public class TuwanAlbumImageDownloadTask implements Runnable {
             for (TuwanAlbumImages image : notDownloadedList) {
                 try {
                     //下载图片
-                    DownloadUtils.downloadFile(tuwanAlbumImageStorePath, image.getAlbumIndex()+"-"+image.getTitle(), image.getUrl());
+                    //DownloadUtils.downloadFile(tuwanAlbumImageStorePath, image.getAlbumIndex()+"-"+image.getTitle(), image.getUrl());
+                    DownloadUtils.downloadTuwanAlbum(tuwanAlbumImageStorePath, image.getAlbumIndex()+"-"+image.getTitle(), image.getNum(),image.getUrl());
                     //更新已下载记录
                     image.setDownloaded(DownloadedStatusEnum.DOWNLOADED.getCode());
                     tuwanAlbumImagesService.insertOrUpdate(image);

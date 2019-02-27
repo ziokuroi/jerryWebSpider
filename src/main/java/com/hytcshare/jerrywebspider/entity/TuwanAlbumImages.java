@@ -33,4 +33,8 @@ public class TuwanAlbumImages {
      * 是否已下载：0未下载，1已下载
      */
     private int downloaded;
+    /**
+     * 在图集中的编号
+     */
+    private String num;
 }

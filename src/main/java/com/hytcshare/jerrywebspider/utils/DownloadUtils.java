@@ -86,9 +86,22 @@ public class DownloadUtils {
      * @param fileStorePath 文件存储的根路径
      * @param subDir        文件存放的子目录，如果子目录为空则文件下载到fileStorePath下
      * @param url           待下载文件的链接
+     * @param num      编号
+     */
+    public static void downloadTuwanAlbum(String fileStorePath, String subDir, String num, String url) {
+        downloadFile(fileStorePath, subDir, num, url);
+    }
+
+    /**
+     * 下载文件
+     *
+     * @param fileStorePath 文件存储的根路径
+     * @param subDir        文件存放的子目录，如果子目录为空则文件下载到fileStorePath下
+     * @param url           待下载文件的链接
      */
     public static void downloadFile(String fileStorePath, String subDir, String url) {
-        downloadFile(fileStorePath, subDir, getFileNameFromUrl(url), url);
+        String fname = getFileNameFromUrl(url);
+        downloadFile(fileStorePath, subDir, fname, url);
     }
 
     private static String getFileNameFromUrl(String url) {
