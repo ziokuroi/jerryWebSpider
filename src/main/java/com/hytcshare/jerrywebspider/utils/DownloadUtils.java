@@ -55,13 +55,16 @@ public class DownloadUtils {
             if (StringUtils.isEmpty(subDir)) {
                 filePath = fileStorePath + splash + fileName;
             } else {
-                filePath = fileStorePath + splash + subDir + splash + fileName;
+                filePath = fileStorePath + splash + subDir.trim() + splash + fileName;
             }
             //创建文件及目录
             File file = new File(filePath);
             //判断父目录是否存在，如果不存在，则创建
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
+            }else {
+                log.info("file错误");
+                return;
             }
             FileOutputStream fileout = new FileOutputStream(file);
             /**
